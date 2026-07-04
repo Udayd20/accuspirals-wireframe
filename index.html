@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AccuSpirals — Tool &amp; Inventory Module · Wireframe</title>
+<style>
+  :root{
+    --ink:#1a1d21; --muted:#697079; --faint:#9aa1a9;
+    --paper:#f4f5f6; --panel:#ffffff; --panel-2:#fbfcfc;
+    --line:#d6dade; --line-strong:#b7bec4;
+    --accent:#0f5a8f;            /* instrument blue */
+    --accent-soft:#e6eef4;
+    --ok:#166534; --ok-bg:#e5f0e8;
+    --warn:#9a5b0a; --warn-bg:#f6ecdd;
+    --bad:#a11d1d; --bad-bg:#f6e3e3;
+    --cal:#5b32a3; --cal-bg:#ece5f6;
+    --gray:#5c636b; --gray-bg:#e9ebed;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--paper);
+    font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;
+  }
+  /* ---------- shell ---------- */
+  .app{display:grid; grid-template-columns:232px 1fr; min-height:100vh}
+  .side{
+    background:var(--ink); color:#c7cdd3; padding:0; position:sticky; top:0; height:100vh;
+    display:flex; flex-direction:column; border-right:1px solid #000;
+  }
+  .brand{padding:18px 18px 14px; border-bottom:1px solid #2b3037}
+  .brand .logo{display:flex; align-items:center; gap:9px}
+  .brand .gear{width:22px;height:22px;flex:0 0 auto}
+  .brand h1{font-size:14px; letter-spacing:.02em; color:#fff; margin:0; font-weight:650}
+  .brand .sub{font-size:11px; color:#828b94; margin-top:3px; font-family:var(--mono); letter-spacing:.02em}
+  nav{padding:8px 8px; overflow-y:auto; flex:1}
+  .nav-group{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:#6b747d; padding:14px 12px 6px}
+  .nav-item{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    background:none; border:0; color:#c7cdd3; font:inherit; font-size:13px;
+    padding:8px 12px; border-radius:4px; cursor:pointer; margin-bottom:1px;
+  }
+  .nav-item:hover{background:#23282e; color:#fff}
+  .nav-item.active{background:var(--accent); color:#fff}
+  .nav-item .ic{width:15px;height:15px;flex:0 0 auto;opacity:.85}
+  .nav-item .badge{margin-left:auto; font-family:var(--mono); font-size:10px; background:#2b3037; color:#c7cdd3; padding:1px 6px; border-radius:9px}
+  .nav-item.active .badge{background:rgba(255,255,255,.22); color:#fff}
+  .side .who{border-top:1px solid #2b3037; padding:12px 16px; font-size:12px; display:flex; align-items:center; gap:9px}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--mono);font-size:11px;flex:0 0 auto}
+  .who .r{font-family:var(--mono); font-size:10px; color:#828b94}
+
+  /* ---------- main ---------- */
+  .main{min-width:0; display:flex; flex-direction:column}
+  .topbar{
+    background:var(--panel); border-bottom:1px solid var(--line);
+    padding:12px 24px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:5;
+  }
+  .crumb{font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.02em}
+  .crumb b{color:var(--ink); font-weight:600}
+  .topsearch{
+    margin-left:auto; display:flex; align-items:center; gap:8px; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:5px; padding:7px 11px; width:340px; max-width:38vw; color:var(--faint);
+  }
+  .topsearch input{border:0; background:none; font:inherit; font-size:13px; width:100%; outline:none; color:var(--ink)}
+  .topsearch kbd{font-family:var(--mono); font-size:10px; color:var(--muted); border:1px solid var(--line); border-radius:3px; padding:1px 5px; background:#fff}
+  .content{padding:24px; max-width:1180px; width:100%}
+  .screen{display:none; animation:fade .18s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  h2.title{font-size:20px; margin:0 0 2px; font-weight:650; letter-spacing:-.01em}
+  .page-sub{color:var(--muted); font-size:13px; margin:0 0 18px}
+  .page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap}
+
+  /* ---------- primitives ---------- */
+  .btn{font:inherit; font-size:13px; border:1px solid var(--line-strong); background:#fff; color:var(--ink); padding:8px 14px; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; gap:7px}
+  .btn:hover{border-color:var(--muted)}
+  .btn.pri{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btn.pri:hover{background:#0c4a76}
+  .btn.sm{padding:5px 10px; font-size:12px}
+  .btn.ghost{background:none;border-color:transparent}
+  .btn.ghost:hover{background:var(--panel-2);border-color:var(--line)}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:7px}
+  .card .card-h{padding:13px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px}
+  .card .card-h h3{margin:0; font-size:13px; font-weight:650; letter-spacing:.01em}
+  .card .card-h .meta{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--muted)}
+  .card .card-b{padding:16px}
+
+  .tag{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:20px; font-weight:600; letter-spacing:.01em; white-space:nowrap}
+  .tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
+  .t-ok{color:var(--ok); background:var(--ok-bg)}
+  .t-issued{color:var(--warn); background:var(--warn-bg)}
+  .t-overdue{color:var(--bad); background:var(--bad-bg)}
+  .t-cal{color:var(--cal); background:var(--cal-bg)}
+  .t-scrap{color:var(--gray); background:var(--gray-bg)}
+  .mono{font-family:var(--mono)}
+  .dim{color:var(--muted)}
+  .num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th{text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; padding:9px 12px; border-bottom:1px solid var(--line); background:var(--panel-2)}
+  td{padding:10px 12px; border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--panel-2)}
+  .rowlink{cursor:pointer}
+
+  /* annotation callouts */
+  .note{border-left:3px solid var(--accent); background:var(--accent-soft); padding:10px 13px; border-radius:0 6px 6px 0; font-size:12.5px; color:#28414f; margin:16px 0}
+  .note b{color:var(--accent)}
+  .wf-tip{font-family:var(--mono); font-size:10.5px; color:var(--faint); text-transform:uppercase; letter-spacing:.08em; margin:2px 0 0}
+
+  /* dashboard */
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:14px 15px; position:relative; overflow:hidden}
+  .kpi .lab{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+  .kpi .val{font-family:var(--mono); font-size:26px; font-weight:600; margin-top:6px; letter-spacing:-.02em}
+  .kpi .val .u{font-size:13px; color:var(--muted); font-weight:500}
+  .kpi .delta{font-family:var(--mono); font-size:11px; margin-top:4px}
+  .kpi .accent-bar{position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent)}
+  .kpi.alert .accent-bar{background:var(--bad)}
+  .kpi.warn .accent-bar{background:var(--warn)}
+  .up{color:var(--ok)} .down{color:var(--bad)}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px}
+  .grid-3{display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-top:16px}
+  .bars{display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:10px}
+  .bars .b{flex:1; background:linear-gradient(180deg,var(--accent),#3a7fad); border-radius:3px 3px 0 0; position:relative}
+  .bars .b span{position:absolute; bottom:-19px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:10px; color:var(--muted)}
+  .alert-row{display:flex; align-items:center; gap:11px; padding:10px 0; border-bottom:1px dashed var(--line)}
+  .alert-row:last-child{border-bottom:0}
+  .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+  .alert-row .txt{font-size:13px}
+  .alert-row .when{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--faint)}
+
+  /* search / catalog layout */
+  .catalog{display:grid; grid-template-columns:236px 1fr; gap:18px; align-items:start}
+  .facets .facet{border-bottom:1px solid var(--line); padding:12px 0}
+  .facets .facet:first-child{padding-top:0}
+  .facet h4{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 9px; display:flex; align-items:center}
+  .facet h4 .clr{margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--accent); cursor:pointer; text-transform:none; letter-spacing:0}
+  .opt{display:flex; align-items:center; gap:8px; padding:4px 0; font-size:13px; cursor:pointer}
+  .opt input{accent-color:var(--accent); width:14px;height:14px}
+  .opt .cnt{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--faint)}
+  .opt.checked{color:var(--ink); font-weight:500}
+  .chips{display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px}
+  .chip{font-family:var(--mono); font-size:11px; background:var(--accent-soft); color:var(--accent); border:1px solid #cfe0ec; padding:3px 8px 3px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:6px}
+  .chip x{cursor:pointer; font-style:normal; font-weight:700}
+  .searchbar-lg{display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--line-strong); border-radius:6px; padding:10px 13px; margin-bottom:12px}
+  .searchbar-lg input{border:0; background:none; font:inherit; font-size:14px; width:100%; outline:none}
+  .resbar{display:flex; align-items:center; gap:12px; margin-bottom:10px; font-size:12px; color:var(--muted)}
+  .resbar .num{color:var(--ink)}
+  .resbar select{margin-left:auto; font:inherit; font-size:12px; border:1px solid var(--line); border-radius:5px; padding:5px 8px; background:#fff}
+
+  /* issue/return */
+  .crib{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start}
+  .scan{border:2px dashed var(--line-strong); border-radius:8px; padding:22px; text-align:center; background:var(--panel-2)}
+  .scan .icon{width:40px;height:40px;margin:0 auto 8px;color:var(--accent)}
+  .scan .big{font-size:15px; font-weight:600}
+  .scan .hint{font-size:12px; color:var(--muted); margin-top:3px}
+  .field{margin-bottom:14px}
+  .field label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:5px}
+  .field .inp{border:1px solid var(--line-strong); border-radius:5px; padding:9px 11px; font-family:var(--mono); font-size:13px; background:#fff; display:flex; align-items:center; gap:8px}
+  .field .inp.readonly{background:var(--panel-2); color:var(--ink)}
+  .lock{border:1px solid #e4c9c9; background:var(--bad-bg); color:var(--bad); border-radius:6px; padding:11px 13px; font-size:12.5px; display:flex; gap:9px; align-items:flex-start; margin:14px 0}
+  .lock svg{flex:0 0 auto;margin-top:1px}
+  .custody{display:flex; align-items:center; gap:10px; font-size:13px; padding:8px 0}
+  .custody .arw{color:var(--faint)}
+
+  /* detail tabs + timeline */
+  .tabs{display:flex; gap:2px; border-bottom:1px solid var(--line); margin:4px 0 16px}
+  .tab{font:inherit; font-size:13px; background:none; border:0; padding:9px 14px; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--accent); border-bottom-color:var(--accent); font-weight:600}
+  .subscreen{display:none} .subscreen.active{display:block}
+  .life{list-style:none; margin:0; padding:0 0 0 6px}
+  .life li{position:relative; padding:0 0 20px 24px; border-left:2px solid var(--line)}
+  .life li:last-child{border-left-color:transparent; padding-bottom:0}
+  .life li::before{content:"";position:absolute;left:-7px;top:1px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+  .life li .ev{font-weight:600; font-size:13px}
+  .life li .mt{font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:1px}
+  .meter{height:9px; background:var(--gray-bg); border-radius:6px; overflow:hidden; margin-top:6px}
+  .meter i{display:block; height:100%; background:linear-gradient(90deg,var(--ok),#3f8f5d)}
+  .meter.low i{background:linear-gradient(90deg,var(--warn),#c17e29)}
+  .kv{display:grid; grid-template-columns:auto 1fr; gap:7px 18px; font-size:13px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0; font-family:var(--mono)}
+
+  /* scrap reconcile */
+  .recon{display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--line); border-radius:7px; overflow:hidden; margin:4px 0 16px}
+  .recon div{padding:13px 15px; border-right:1px solid var(--line)}
+  .recon div:last-child{border-right:0}
+  .recon .rl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
+  .recon .rv{font-family:var(--mono); font-size:19px; font-weight:600; margin-top:5px}
+  .recon .bal{background:var(--ok-bg)} .recon .bal .rv{color:var(--ok)}
+  .recon .flag{background:var(--bad-bg)} .recon .flag .rv{color:var(--bad)}
+  .signrow{display:flex; gap:14px; margin-top:4px}
+  .sign{flex:1; border:1px solid var(--line); border-radius:6px; padding:13px; background:var(--panel-2)}
+  .sign .role{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+  .sign .name{font-weight:600; margin-top:3px}
+  .sign .st{font-family:var(--mono); font-size:11px; margin-top:6px}
+
+  /* accountant */
+  .ledger td.debit{color:var(--bad)} .ledger td.credit{color:var(--ok)}
+  .val-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+
+  /* audit */
+  .audit-row td{font-family:var(--mono); font-size:12px}
+  .hash{color:var(--faint); font-size:11px}
+  .imm{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ok);background:var(--ok-bg);padding:3px 9px;border-radius:5px}
+
+  @media(max-width:920px){
+    .app{grid-template-columns:1fr}
+    .side{position:fixed; z-index:40; width:232px; transform:translateX(-100%); transition:transform .2s}
+    .side.open{transform:none}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid-2,.grid-3,.catalog,.crib{grid-template-columns:1fr}
+    .recon,.val-summary{grid-template-columns:1fr 1fr}
+    .topsearch{display:none}
+    .menu-btn{display:inline-flex!important}
+  }
+  .menu-btn{display:none}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="logo">
+        <svg class="gear" viewBox="0 0 24 24" fill="none" stroke="#5aa0d0" stroke-width="1.6"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>
+        <div>
+          <h1>AccuSpirals</h1>
+          <div class="sub">TOOL &amp; INVENTORY</div>
+        </div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-group">Operations</div>
+      <button class="nav-item active" data-screen="dashboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</button>
+      <button class="nav-item" data-screen="catalog"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Catalog &amp; Search</button>
+      <button class="nav-item" data-screen="crib"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>Tool Crib<span class="badge">42 out</span></button>
+      <button class="nav-item" data-screen="detail"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Tool Detail</button>
+      <div class="nav-group">Control &amp; Compliance</div>
+      <button class="nav-item" data-screen="calibration"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Calibration<span class="badge">6 due</span></button>
+      <button class="nav-item" data-screen="scrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Scrap &amp; Write-off</button>
+      <button class="nav-item" data-screen="count"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Cycle Count</button>
+      <div class="nav-group">Finance</div>
+      <button class="nav-item" data-screen="accountant"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Accountant View</button>
+      <button class="nav-item" data-screen="audit"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Audit Log</button>
+    </nav>
+    <div class="who">
+      <div class="avatar">RK</div>
+      <div>
+        <div>Ravi Kumar</div>
+        <div class="r">CRIB_ATTENDANT</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <button class="btn ghost sm menu-btn" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+      <div class="crumb">Peenya Plant · Crib&nbsp;A / <b id="crumb">Dashboard</b></div>
+      <div class="topsearch">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Search tools, serials, part no., material…">
+        <kbd>⌘K</kbd>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ---------- DASHBOARD ---------- -->
+      <section class="screen active" id="s-dashboard">
+        <div class="page-head">
+          <div><h2 class="title">Operations Dashboard</h2><p class="page-sub">Live status across the tool crib · last cycle count 2 days ago</p></div>
+          <div><button class="btn sm">Export</button> <button class="btn pri sm">+ New issue</button></div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><span class="accent-bar"></span><div class="lab">Inventory value</div><div class="val">₹1.84<span class="u">Cr</span></div><div class="delta up">▲ 2.1% vs last month</div></div>
+          <div class="kpi warn"><span class="accent-bar"></span><div class="lab">Tools currently issued</div><div class="val">42</div><div class="delta dim">across 18 employees</div></div>
+          <div class="kpi alert"><span class="accent-bar"></span><div class="lab">Overdue returns</div><div class="val">7</div><div class="delta down">▲ 3 since yesterday</div></div>
+          <div class="kpi warn"><span class="accent-bar"></span><div class="lab">Calibration due ≤7d</div><div class="val">6</div><div class="delta dim">2 already overdue</div></div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-h"><h3>Scrap generated vs. recovered value</h3><span class="meta">last 6 months · ₹ thousand</span></div>
+            <div class="card-b">
+              <div class="bars">
+                <div class="b" style="height:52%"><span>Jan</span></div>
+                <div class="b" style="height:63%"><span>Feb</span></div>
+                <div class="b" style="height:48%"><span>Mar</span></div>
+                <div class="b" style="height:74%"><span>Apr</span></div>
+                <div class="b" style="height:58%"><span>May</span></div>
+                <div class="b" style="height:81%"><span>Jun</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h3>Alerts</h3><span class="meta">8 active</span></div>
+            <div class="card-b" style="padding-top:6px">
+              <div class="alert-row"><span class="dot" style="background:var(--bad)"></span><span class="txt"><b>HOB-M2-0417</b> overdue 3 days · S. Prakash</span><span class="when">3d</span></div>
+              <div class="alert-row"><span class="dot" style="background:var(--cal)"></span><span class="txt">Master gear <b>MG-3962-08</b> calibration expired</span><span class="when">1d</span></div>
+              <div class="alert-row"><span class="dot" style="background:var(--warn)"></span><span class="txt">Carbide inserts below reorder point (12/40)</span><span class="when">4h</span></div>
+              <div class="alert-row"><span class="dot" style="background:var(--bad)"></span><span class="txt">Scrap reconciliation variance +6.2% on WO-2291</span><span class="when">2h</span></div>
+              <div class="alert-row"><span class="dot" style="background:var(--warn)"></span><span class="txt">Shaper cutter <b>SC-4972-11</b> at last regrind (9/10)</span><span class="when">6h</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-h"><h3>Recently issued</h3><span class="meta">custody chain</span></div>
+            <table>
+              <thead><tr><th>Tool</th><th>Serial</th><th>Issued to</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr class="rowlink" onclick="go('detail')"><td>Gear hob M2 20°</td><td class="num">HOB-M2-0417</td><td>S. Prakash</td><td><span class="tag t-overdue">Overdue</span></td></tr>
+                <tr><td>Shaper cutter M3</td><td class="num">SC-4972-11</td><td>A. Iyer</td><td><span class="tag t-issued">Issued</span></td></tr>
+                <tr><td>Bore micrometer</td><td class="num">MIC-050-77</td><td>QA · Deepa</td><td><span class="tag t-issued">Issued</span></td></tr>
+                <tr><td>CBN grinding worm</td><td class="num">GW-CBN-203</td><td>Grinding · Manoj</td><td><span class="tag t-issued">Issued</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-h"><h3>Inventory-record accuracy</h3><span class="meta">by ABC class</span></div>
+            <div class="card-b">
+              <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px"><span><b>A-class</b> · counted weekly</span><span class="num">98.4%</span></div><div class="meter"><i style="width:98%"></i></div></div>
+              <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px"><span><b>B-class</b> · counted monthly</span><span class="num">96.1%</span></div><div class="meter"><i style="width:96%"></i></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:12px"><span><b>C-class</b> · counted quarterly</span><span class="num">91.7%</span></div><div class="meter low"><i style="width:92%"></i></div></div>
+              <p class="note" style="margin-bottom:0">Target IRA ≥ 95%. C-class is below tolerance — a surprise count is auto-scheduled.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- CATALOG & SEARCH ---------- -->
+      <section class="screen" id="s-catalog">
+        <div class="page-head">
+          <div><h2 class="title">Catalog &amp; Search</h2><p class="page-sub">Search by material, type, spec, location, status — anything.</p></div>
+          <div><button class="btn sm">Import CSV</button> <button class="btn pri sm">+ Add tool</button></div>
+        </div>
+
+        <div class="note"><b>Search engine:</b> weighted PostgreSQL full-text (tsvector + GIN) with pg_trgm fuzzy matching, exposed via a faceted API. Facet counts update live; filters combine OR within a group, AND across groups.</div>
+
+        <div class="catalog">
+          <!-- facets -->
+          <aside class="card facets" style="padding:16px">
+            <div class="facet"><h4>Type <span class="clr">clear</span></h4>
+              <label class="opt checked"><input type="checkbox" checked> Gear hob <span class="cnt">128</span></label>
+              <label class="opt"><input type="checkbox"> Shaper cutter <span class="cnt">64</span></label>
+              <label class="opt"><input type="checkbox"> Grinding wheel <span class="cnt">51</span></label>
+              <label class="opt"><input type="checkbox"> Gauge / master <span class="cnt">217</span></label>
+              <label class="opt"><input type="checkbox"> Insert / holder <span class="cnt">903</span></label>
+            </div>
+            <div class="facet"><h4>Material</h4>
+              <label class="opt checked"><input type="checkbox" checked> HSS <span class="cnt">340</span></label>
+              <label class="opt"><input type="checkbox"> PM-HSS <span class="cnt">96</span></label>
+              <label class="opt"><input type="checkbox"> Carbide <span class="cnt">612</span></label>
+              <label class="opt"><input type="checkbox"> CBN <span class="cnt">44</span></label>
+              <label class="opt"><input type="checkbox"> PCD <span class="cnt">12</span></label>
+            </div>
+            <div class="facet"><h4>Status</h4>
+              <label class="opt"><input type="checkbox"> Available <span class="cnt">1.9k</span></label>
+              <label class="opt"><input type="checkbox"> Issued <span class="cnt">42</span></label>
+              <label class="opt"><input type="checkbox"> In regrind <span class="cnt">18</span></label>
+              <label class="opt"><input type="checkbox"> Quarantined <span class="cnt">7</span></label>
+            </div>
+            <div class="facet"><h4>Location</h4>
+              <label class="opt"><input type="checkbox"> Peenya · Crib A <span class="cnt">1.2k</span></label>
+              <label class="opt"><input type="checkbox"> Peenya · Crib B <span class="cnt">640</span></label>
+              <label class="opt"><input type="checkbox"> Tumkur · Crib <span class="cnt">410</span></label>
+            </div>
+            <div class="facet"><h4>Module (DIN)</h4>
+              <label class="opt"><input type="checkbox"> 1.0 – 2.0 <span class="cnt">88</span></label>
+              <label class="opt"><input type="checkbox"> 2.5 – 4.0 <span class="cnt">142</span></label>
+              <label class="opt"><input type="checkbox"> 5.0+ <span class="cnt">37</span></label>
+            </div>
+          </aside>
+
+          <!-- results -->
+          <div>
+            <div class="searchbar-lg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input value="hob m2 20 degree hss">
+              <button class="btn sm">Search</button>
+            </div>
+            <div class="chips">
+              <span class="chip">Type: Gear hob <x>×</x></span>
+              <span class="chip">Material: HSS <x>×</x></span>
+              <span class="chip">Clear all <x>×</x></span>
+            </div>
+            <div class="resbar"><span class="num">128</span> results · sorted by relevance
+              <select><option>Relevance</option><option>Part no.</option><option>Remaining life</option><option>Location</option></select>
+            </div>
+            <div class="card">
+              <table>
+                <thead><tr><th>Part no.</th><th>Description</th><th>Material</th><th>Module</th><th>Location</th><th>Life</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr class="rowlink" onclick="go('detail')"><td class="num">HOB-M2-0417</td><td>Gear hob, involute finishing 20°</td><td>HSS</td><td class="num">2.0</td><td>Crib A · R3-B12</td><td class="num">6/12</td><td><span class="tag t-overdue">Overdue</span></td></tr>
+                  <tr class="rowlink" onclick="go('detail')"><td class="num">HOB-M2-0418</td><td>Gear hob, involute finishing 20°</td><td>HSS</td><td class="num">2.0</td><td>Crib A · R3-B12</td><td class="num">11/12</td><td><span class="tag t-ok">Available</span></td></tr>
+                  <tr class="rowlink"><td class="num">HOB-M2-0512</td><td>Gear hob, pre-grind roughing</td><td>PM-HSS</td><td class="num">2.0</td><td>Crib A · R3-B13</td><td class="num">3/15</td><td><span class="tag t-ok">Available</span></td></tr>
+                  <tr class="rowlink"><td class="num">HOB-M2-0290</td><td>Gear hob, TiAlN coated</td><td>HSS</td><td class="num">2.0</td><td>Crib B · R1-B04</td><td class="num">—</td><td><span class="tag t-cal">In regrind</span></td></tr>
+                  <tr class="rowlink"><td class="num">HOB-M2-0141</td><td>Gear hob, spline form</td><td>HSS</td><td class="num">2.0</td><td>Tumkur · R2-A07</td><td class="num">8/12</td><td><span class="tag t-scrap">Quarantined</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- TOOL CRIB ISSUE/RETURN ---------- -->
+      <section class="screen" id="s-crib">
+        <div class="page-head">
+          <div><h2 class="title">Tool Crib — Issue &amp; Return</h2><p class="page-sub">Scanner-first · every transaction is attributed to a named employee.</p></div>
+          <div><button class="btn sm">Return mode</button> <button class="btn pri sm">Issue mode</button></div>
+        </div>
+
+        <div class="crib">
+          <!-- left: scan flow -->
+          <div class="card"><div class="card-b">
+            <div class="scan">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 4v16M11 4v16M15 4v16M19 4v16" stroke-width="1"/></svg>
+              <div class="big">Scan tool barcode / RFID</div>
+              <div class="hint">or type a part number below</div>
+            </div>
+            <div class="field" style="margin-top:16px"><label>Employee (badge scan)</label><div class="inp readonly"><span class="avatar" style="width:20px;height:20px;font-size:9px">SP</span> EMP-2231 · S. Prakash · MACHINIST</div></div>
+            <div class="field"><label>Tool</label><div class="inp readonly">HOB-M2-0418 · Gear hob M2 20° · HSS</div></div>
+            <div class="field"><label>Job / Work order</label><div class="inp">WO-2291 · Spur gear batch ▾</div></div>
+            <div class="field"><label>Expected return</label><div class="inp">2026-07-04 · 18:00</div></div>
+          </div></div>
+
+          <!-- right: preview + guards -->
+          <div>
+            <div class="card"><div class="card-h"><h3>Transaction preview</h3></div><div class="card-b">
+              <div class="custody">
+                <span class="tag t-ok">Crib A</span><span class="arw">→</span>
+                <span class="avatar" style="width:22px;height:22px;font-size:9px">SP</span> S. Prakash <span class="arw">→</span>
+                <span class="mono dim">WO-2291</span>
+              </div>
+              <div class="lock">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+                <div><b>Calibration lock cleared.</b> This tool has no calibration requirement. Instruments that are out-of-calibration are blocked from issue automatically.</div>
+              </div>
+              <dl class="kv">
+                <dt>Remaining regrind life</dt><dd>11 / 12</dd>
+                <dt>Last returned by</dt><dd>A. Iyer · 2026-06-28</dd>
+                <dt>Condition on issue</dt><dd>OK — verified</dd>
+              </dl>
+              <div style="display:flex;gap:10px;margin-top:18px">
+                <button class="btn" style="flex:1">Cancel</button>
+                <button class="btn pri" style="flex:2">Confirm issue &amp; log custody</button>
+              </div>
+            </div></div>
+            <div class="note" style="margin-bottom:0"><b>Anti-theft by design:</b> no tool leaves without a named custodian, timestamp, and job link. If it isn't returned, the system knows exactly who holds it — this row feeds the overdue alerts and the audit log.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- TOOL DETAIL ---------- -->
+      <section class="screen" id="s-detail">
+        <div class="page-head">
+          <div>
+            <h2 class="title">HOB-M2-0417 <span class="tag t-overdue" style="vertical-align:middle">Overdue</span></h2>
+            <p class="page-sub mono">Gear hob · involute finishing · Module 2.0 · 20° PA · HSS · TiAlN · DIN 3968 Class A</p>
+          </div>
+          <div><button class="btn sm">Print label</button> <button class="btn sm">Send to regrind</button> <button class="btn pri sm">Force return</button></div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-sub="overview">Overview</button>
+          <button class="tab" data-sub="custody">Custody chain</button>
+          <button class="tab" data-sub="regrind">Regrind history</button>
+          <button class="tab" data-sub="calib">Calibration</button>
+        </div>
+
+        <div class="subscreen active" id="sub-overview">
+          <div class="grid-2" style="margin-top:0">
+            <div class="card"><div class="card-h"><h3>Specification</h3></div><div class="card-b">
+              <dl class="kv">
+                <dt>Serial / asset tag</dt><dd>HOB-M2-0417</dd>
+                <dt>Type</dt><dd>Gear hob (finishing)</dd>
+                <dt>Module / DP</dt><dd>2.0 mm</dd>
+                <dt>Pressure angle</dt><dd>20°</dd>
+                <dt>Substrate</dt><dd>HSS-E (M35)</dd>
+                <dt>Coating</dt><dd>TiAlN</dd>
+                <dt>Accuracy class</dt><dd>DIN 3968 · A</dd>
+                <dt>Manufacturer</dt><dd>Star SU</dd>
+                <dt>Acquisition cost</dt><dd>₹ 84,500</dd>
+                <dt>ABC / VED</dt><dd>A · Vital</dd>
+              </dl>
+            </div></div>
+            <div class="card"><div class="card-h"><h3>Remaining tool life</h3></div><div class="card-b">
+              <div style="font-size:12px;display:flex;justify-content:space-between"><span>Regrinds used</span><span class="num">6 / 12</span></div>
+              <div class="meter"><i style="width:50%"></i></div>
+              <p class="dim" style="font-size:12px;margin-top:10px">Each regrind removes ~0.020&quot; and is re-verified to DIN Class A. Predicted end-of-life after 6 more grinds based on wear rate.</p>
+              <dl class="kv" style="margin-top:12px">
+                <dt>Cumulative parts cut</dt><dd>41,200</dd>
+                <dt>Cutting hours</dt><dd>612 h</dd>
+                <dt>Current custodian</dt><dd>S. Prakash</dd>
+                <dt>Location (home bin)</dt><dd>Crib A · R3-B12</dd>
+              </dl>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="subscreen" id="sub-custody">
+          <div class="card"><div class="card-b">
+            <ul class="life">
+              <li><div class="ev">Issued to S. Prakash <span class="tag t-overdue">current</span></div><div class="mt">2026-07-02 08:14 · WO-2291 · by Ravi Kumar (crib) · expected 07-04</div></li>
+              <li><div class="ev">Returned by A. Iyer</div><div class="mt">2026-06-28 17:40 · condition OK · WO-2270</div></li>
+              <li><div class="ev">Issued to A. Iyer</div><div class="mt">2026-06-26 09:02 · WO-2270 · by Ravi Kumar</div></li>
+              <li><div class="ev">Returned from regrind #6</div><div class="mt">2026-06-24 · re-verified DIN Class A · 0.019&quot; removed</div></li>
+              <li><div class="ev">Sent to regrind</div><div class="mt">2026-06-20 · wear flagged at inspection</div></li>
+            </ul>
+          </div></div>
+        </div>
+
+        <div class="subscreen" id="sub-regrind">
+          <div class="card"><table>
+            <thead><tr><th>#</th><th>Date</th><th>Vendor</th><th>Stock removed</th><th>Post-grind class</th><th>Cost</th></tr></thead>
+            <tbody>
+              <tr><td class="num">6</td><td class="num">2026-06-24</td><td>In-house</td><td class="num">0.019″</td><td><span class="tag t-ok">DIN A</span></td><td class="num">₹1,200</td></tr>
+              <tr><td class="num">5</td><td class="num">2026-04-11</td><td>In-house</td><td class="num">0.021″</td><td><span class="tag t-ok">DIN A</span></td><td class="num">₹1,200</td></tr>
+              <tr><td class="num">4</td><td class="num">2026-01-30</td><td>Star SU (out)</td><td class="num">0.018″</td><td><span class="tag t-ok">DIN A</span></td><td class="num">₹3,400</td></tr>
+              <tr><td class="num">3</td><td class="num">2025-10-15</td><td>In-house</td><td class="num">0.022″</td><td><span class="tag t-ok">DIN A</span></td><td class="num">₹1,200</td></tr>
+            </tbody>
+          </table></div>
+          <div class="note" style="margin-bottom:0">Regrind is issued <b>before</b> a new hob when a comparable one exists — this "force regrind" rule protects the 6 remaining grinds worth of tool value.</div>
+        </div>
+
+        <div class="subscreen" id="sub-calib">
+          <div class="card"><div class="card-b">
+            <p class="dim" style="margin-top:0">Cutting tools are not calibrated — this panel applies to gauges &amp; masters. Shown here as the shared component used for instruments.</p>
+            <dl class="kv">
+              <dt>Calibration required</dt><dd>No (cutting tool)</dd>
+              <dt>Applies to</dt><dd>Micrometers, masters, plug/ring gauges</dd>
+            </dl>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ---------- CALIBRATION ---------- -->
+      <section class="screen" id="s-calibration">
+        <div class="page-head">
+          <div><h2 class="title">Calibration Register</h2><p class="page-sub">ISO 9001:2015 · Clause 7.1.5.2 — measurement traceability</p></div>
+          <div><button class="btn sm">Certificates</button> <button class="btn pri sm">Record calibration</button></div>
+        </div>
+        <div class="note"><b>Calibration lock:</b> any instrument past its due date is set <span class="tag t-cal" style="margin:0 2px">Out of cal</span> and cannot be issued or used for QA acceptance until re-calibrated. Overdue items surface on the dashboard automatically.</div>
+        <div class="card"><table>
+          <thead><tr><th>Instrument</th><th>Serial</th><th>Last cal.</th><th>Due</th><th>Cert.</th><th>Traceability</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Master gear (Ø80, M2)</td><td class="num">MG-3962-08</td><td class="num">2025-06-30</td><td class="num">2026-06-30</td><td class="num">NABL-11-2291</td><td>NPL India</td><td><span class="tag t-overdue">Expired</span></td></tr>
+            <tr><td>Bore micrometer 25-50</td><td class="num">MIC-050-77</td><td class="num">2026-01-14</td><td class="num">2026-07-09</td><td class="num">NABL-11-3140</td><td>NPL India</td><td><span class="tag t-cal">Due ≤7d</span></td></tr>
+            <tr><td>Plug gauge Go/No-Go H7</td><td class="num">PG-H7-221</td><td class="num">2026-02-02</td><td class="num">2026-08-02</td><td class="num">NABL-11-3201</td><td>NPL India</td><td><span class="tag t-ok">Valid</span></td></tr>
+            <tr><td>Gear checker (analytical)</td><td class="num">GC-AN-04</td><td class="num">2026-03-19</td><td class="num">2027-03-19</td><td class="num">OEM-9920</td><td>Klingelnberg</td><td><span class="tag t-ok">Valid</span></td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <!-- ---------- SCRAP ---------- -->
+      <section class="screen" id="s-scrap">
+        <div class="page-head">
+          <div><h2 class="title">Scrap &amp; Write-off</h2><p class="page-sub">Weight-reconciled, dual-signed. The tightest control in the module.</p></div>
+          <div><button class="btn sm">Disposal log</button> <button class="btn pri sm">+ New scrap entry</button></div>
+        </div>
+
+        <div class="note"><b>Why this matters:</b> scrap write-offs are the most common cover for internal theft. Every entry is weighed on a calibrated scale, reconciled against the job's material balance, and requires a second authorised sign-off before it posts.</div>
+
+        <div class="card"><div class="card-h"><h3>Reconciliation · WO-2291</h3><span class="meta">steel · calibrated scale SCL-02</span></div><div class="card-b">
+          <div class="recon">
+            <div><div class="rl">Material issued</div><div class="rv">184.0 kg</div></div>
+            <div><div class="rl">Finished weight</div><div class="rv">162.5 kg</div></div>
+            <div><div class="rl">Legit. swarf (est.)</div><div class="rv">10.1 kg</div></div>
+            <div class="flag"><div class="rl">Unexplained</div><div class="rv">11.4 kg</div></div>
+          </div>
+          <p class="note" style="margin:0;border-left-color:var(--bad);background:var(--bad-bg);color:#7a2020"><b>Variance +6.2% exceeds ±2% tolerance.</b> Entry is held for investigation and cannot post until resolved or overridden by a supervisor with reason.</p>
+        </div></div>
+
+        <div class="grid-2">
+          <div class="card"><div class="card-h"><h3>Scrap entry</h3></div><div class="card-b">
+            <div class="field"><label>Category</label><div class="inp">Steel turnings / swarf ▾</div></div>
+            <div class="field"><label>Weight (calibrated scale)</label><div class="inp">21.5 kg · SCL-02 · verified</div></div>
+            <div class="field"><label>Source</label><div class="inp">WO-2291 · gear blank lot LOT-0912</div></div>
+            <div class="field"><label>Value recovery @ ₹38/kg</label><div class="inp readonly">₹ 817.00</div></div>
+          </div></div>
+          <div class="card"><div class="card-h"><h3>Authorisation (segregation of duties)</h3></div><div class="card-b">
+            <div class="signrow" style="flex-direction:column;gap:12px">
+              <div class="sign"><div class="role">Requested by</div><div class="name">Ravi Kumar · Crib</div><div class="st"><span class="tag t-ok" style="padding:1px 8px">✓ signed 14:22</span></div></div>
+              <div class="sign"><div class="role">Approved by (must differ)</div><div class="name dim">Awaiting — Plant Supervisor</div><div class="st"><span class="tag t-issued" style="padding:1px 8px">Pending</span></div></div>
+            </div>
+            <button class="btn" style="width:100%;margin-top:14px" disabled>Post scrap (blocked until approved &amp; variance cleared)</button>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ---------- CYCLE COUNT ---------- -->
+      <section class="screen" id="s-count">
+        <div class="page-head">
+          <div><h2 class="title">Cycle Count — Blind</h2><p class="page-sub">System quantities hidden. Counters can't see the book figure while counting.</p></div>
+          <div><button class="btn sm">Schedule</button> <button class="btn pri sm">Start count task</button></div>
+        </div>
+        <div class="note"><b>Blind count + segregation of duties:</b> the person counting is not the custodian and never sees the expected quantity — this removes the anchoring that lets shrinkage hide. Variance is revealed only after entry, then classified.</div>
+
+        <div class="card"><div class="card-h"><h3>Count task CC-0087 · Crib A · Rack R3</h3><span class="meta">counter: Deepa (QA) · A-class</span></div>
+          <table>
+            <thead><tr><th>Bin</th><th>Part no.</th><th>Description</th><th>System qty</th><th>Counted</th><th>Variance</th></tr></thead>
+            <tbody>
+              <tr><td class="num">R3-B12</td><td class="num">HOB-M2-0418</td><td>Gear hob M2 20°</td><td class="dim">•• hidden</td><td class="num">4</td><td><span class="tag t-scrap">reveal after</span></td></tr>
+              <tr><td class="num">R3-B13</td><td class="num">HOB-M2-0512</td><td>Gear hob pre-grind</td><td class="dim">•• hidden</td><td class="num">2</td><td><span class="tag t-scrap">reveal after</span></td></tr>
+              <tr><td class="num">R3-B20</td><td class="num">GW-CBN-203</td><td>CBN grinding worm</td><td class="dim">•• hidden</td><td class="num">1</td><td><span class="tag t-scrap">reveal after</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card-b" style="border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn">Save draft</button>
+            <button class="btn pri" onclick="revealVariance()">Submit &amp; reveal variance</button>
+          </div>
+        </div>
+        <div class="card" id="varianceResult" style="margin-top:16px;display:none">
+          <div class="card-h"><h3>Variance result</h3><span class="meta">classify each to drive root-cause</span></div>
+          <table>
+            <thead><tr><th>Part no.</th><th>System</th><th>Counted</th><th>Variance</th><th>Classify</th></tr></thead>
+            <tbody>
+              <tr><td class="num">HOB-M2-0418</td><td class="num">4</td><td class="num">4</td><td><span class="tag t-ok">0 · match</span></td><td class="dim">—</td></tr>
+              <tr><td class="num">HOB-M2-0512</td><td class="num">3</td><td class="num">2</td><td><span class="tag t-overdue">−1 · shrink</span></td><td><button class="btn sm">Classify ▾</button></td></tr>
+              <tr><td class="num">GW-CBN-203</td><td class="num">1</td><td class="num">1</td><td><span class="tag t-ok">0 · match</span></td><td class="dim">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- ACCOUNTANT ---------- -->
+      <section class="screen" id="s-accountant">
+        <div class="page-head">
+          <div><h2 class="title">Accountant View</h2><p class="page-sub">Read-only · valuation, ledgers &amp; shrinkage cost · Ind AS 2 (WAC)</p></div>
+          <div><button class="btn sm">Period ▾</button> <button class="btn sm">Export XLSX</button></div>
+        </div>
+        <div class="note"><b>Segregation of duties:</b> this role reads financial data and audit trails but has no write access to operational stock records. Valuation uses Weighted Average Cost at lower of cost or NRV.</div>
+
+        <div class="val-summary">
+          <div class="kpi"><span class="accent-bar"></span><div class="lab">Closing inventory value</div><div class="val">₹1.84<span class="u">Cr</span></div><div class="delta dim">WAC · 4,218 line items</div></div>
+          <div class="kpi warn"><span class="accent-bar"></span><div class="lab">Scrap value recovered (YTD)</div><div class="val">₹4.1<span class="u">L</span></div><div class="delta up">▲ reconciled to disposals</div></div>
+          <div class="kpi alert"><span class="accent-bar"></span><div class="lab">Shrinkage cost (YTD)</div><div class="val">₹92<span class="u">k</span></div><div class="delta down">from classified variances</div></div>
+        </div>
+
+        <div class="card"><div class="card-h"><h3>Stock ledger — HOB-M2 group</h3><span class="meta">perpetual · WAC</span></div>
+          <table class="ledger">
+            <thead><tr><th>Date</th><th>Ref</th><th>Movement</th><th>Qty</th><th>Rate</th><th>Value</th><th>Balance</th></tr></thead>
+            <tbody>
+              <tr><td class="num">07-01</td><td class="num">GRN-1182</td><td>Receipt</td><td class="num credit">+2</td><td class="num">₹84,500</td><td class="num">₹1,69,000</td><td class="num">₹9.30L</td></tr>
+              <tr><td class="num">07-02</td><td class="num">WO-2291</td><td>Issue to production</td><td class="num debit">−1</td><td class="num">₹84,900</td><td class="num">₹84,900</td><td class="num">₹8.45L</td></tr>
+              <tr><td class="num">07-02</td><td class="num">CC-0087</td><td>Shrink adjustment</td><td class="num debit">−1</td><td class="num">₹84,900</td><td class="num">₹84,900</td><td class="num">₹7.60L</td></tr>
+              <tr><td class="num">07-03</td><td class="num">SCR-0311</td><td>Scrap recovery</td><td class="num credit">+₹817</td><td class="num">₹38/kg</td><td class="num credit">₹817</td><td class="num">₹7.61L</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- AUDIT ---------- -->
+      <section class="screen" id="s-audit">
+        <div class="page-head">
+          <div><h2 class="title">Audit Log</h2><p class="page-sub">Append-only · DB-enforced immutability · hash-chained</p></div>
+          <div><span class="imm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg> INSERT-only · UPDATE/DELETE revoked</span></div>
+        </div>
+        <div class="note"><b>Tamper-evident:</b> written by database triggers regardless of code path, with UPDATE/DELETE privileges revoked and each row hash-chained to the previous. Nobody — including admins — can quietly rewrite history.</div>
+        <div class="card"><table>
+          <thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Entity</th><th>Change</th><th>Hash</th></tr></thead>
+          <tbody class="audit-row">
+            <tr><td>2026-07-02 08:14:07</td><td>ravi.kumar</td><td>ISSUE</td><td>HOB-M2-0417</td><td>status: Available → Issued</td><td class="hash">a91f…c2</td></tr>
+            <tr><td>2026-07-02 09:41:22</td><td>deepa.qa</td><td>COUNT_SUBMIT</td><td>CC-0087</td><td>3 bins · 1 variance</td><td class="hash">7b03…e8</td></tr>
+            <tr><td>2026-07-02 14:22:10</td><td>ravi.kumar</td><td>SCRAP_REQUEST</td><td>SCR-0311</td><td>21.5 kg · held (variance)</td><td class="hash">d40a…19</td></tr>
+            <tr><td>2026-07-02 16:05:55</td><td>admin.jain</td><td>ROLE_GRANT</td><td>EMP-2231</td><td>+ QA_INSPECTOR</td><td class="hash">11ce…7f</td></tr>
+            <tr><td>2026-06-30 23:59:00</td><td>system</td><td>CAL_EXPIRE</td><td>MG-3962-08</td><td>status → Out of cal</td><td class="hash">e2b8…40</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const items = document.querySelectorAll('.nav-item');
+  const screens = document.querySelectorAll('.screen');
+  const crumb = document.getElementById('crumb');
+  function go(id){
+    screens.forEach(s=>s.classList.toggle('active', s.id==='s-'+id));
+    items.forEach(n=>n.classList.toggle('active', n.dataset.screen===id));
+    const active=[...items].find(n=>n.dataset.screen===id);
+    if(active) crumb.textContent=active.textContent.replace(/\d+.*$/,'').trim();
+    document.getElementById('side').classList.remove('open');
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  items.forEach(n=>n.addEventListener('click',()=>go(n.dataset.screen)));
+
+  // detail tabs
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.subscreen').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('sub-'+t.dataset.sub).classList.add('active');
+  }));
+
+  // facet toggle demo
+  document.querySelectorAll('.opt input').forEach(cb=>cb.addEventListener('change',e=>{
+    e.target.closest('.opt').classList.toggle('checked', e.target.checked);
+  }));
+
+  function revealVariance(){ document.getElementById('varianceResult').style.display='block';
+    document.getElementById('varianceResult').scrollIntoView({behavior:'smooth'}); }
+</script>
+</body>
+</html>
